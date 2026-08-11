@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>UFCD 0555 — Banking Technology Quiz</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+  :root{
+    --navy:#0E2233;
+    --navy-deep:#081420;
+    --panel:#132B40;
+    --ledger-line:#24445F;
+    --ink:#E9EDEF;
+    --ink-dim:#9FB2C0;
+    --gold:#C9A24B;
+    --gold-soft:#e8cd8a;
+    --good:#5FA987;
+    --bad:#C06A54;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      repeating-linear-gradient(180deg, transparent 0 39px, rgba(255,255,255,0.02) 39px 40px),
+      var(--navy);
+    color:var(--ink);
+    font-family:'IBM Plex Sans', sans-serif;
+    min-height:100vh;
+    padding:32px 16px 64px;
+  }
+
+  .sheet{
+    max-width:720px;
+    margin:0 auto;
+  }
+
+  .letterhead{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-end;
+    border-bottom:2px solid var(--gold);
+    padding-bottom:14px;
+    margin-bottom:8px;
+  }
+  .letterhead h1{
+    font-family:'Fraunces', serif;
+    font-weight:700;
+    font-size:1.7rem;
+    margin:0;
+    letter-spacing:0.3px;
+  }
+  .letterhead .stamp{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.7rem;
+    color:var(--ink-dim);
+    text-align:right;
+    line-height:1.5;
+  }
+  .subtitle{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.78rem;
+    color:var(--ink-dim);
+    margin:0 0 26px;
+  }
+
+  .balance-bar{
+    display:flex;
+    align-items:center;
+    gap:12px;
+    margin-bottom:26px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    color:var(--ink-dim);
+  }
+  .balance-track{
+    flex:1;
+    height:6px;
+    background:var(--ledger-line);
+    border-radius:3px;
+    overflow:hidden;
+  }
+  .balance-fill{
+    height:100%;
+    width:0%;
+    background:linear-gradient(90deg, var(--gold-soft), var(--gold));
+    transition:width .4s ease;
+  }
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--ledger-line);
+    border-radius:6px;
+    padding:26px 24px;
+    position:relative;
+  }
+  .entry-no{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    color:var(--gold);
+    letter-spacing:1.5px;
+    text-transform:uppercase;
+    margin-bottom:10px;
+  }
+  .question{
+    font-family:'Fraunces', serif;
+    font-size:1.22rem;
+    font-weight:500;
+    line-height:1.4;
+    margin:0 0 20px;
+  }
+
+  .options{
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+  }
+  .opt{
+    display:flex;
+    align-items:flex-start;
+    gap:12px;
+    text-align:left;
+    background:var(--navy-deep);
+    border:1px solid var(--ledger-line);
+    color:var(--ink);
+    border-radius:5px;
+    padding:12px 14px;
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:0.95rem;
+    cursor:pointer;
+    transition:border-color .15s, background .15s, transform .1s;
+  }
+  .opt:hover:not(:disabled){
+    border-color:var(--gold-soft);
+  }
+  .opt:disabled{cursor:default;}
+  .opt .tag{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    color:var(--ink-dim);
+    flex-shrink:0;
+    width:18px;
+  }
+  .opt.correct{
+    border-color:var(--good);
+    background:rgba(95,169,135,0.15);
+  }
+  .opt.correct .tag{color:var(--good);}
+  .opt.wrong{
+    border-color:var(--bad);
+    background:rgba(192,106,84,0.15);
+  }
+  .opt.wrong .tag{color:var(--bad);}
+
+  .feedback{
+    margin-top:16px;
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    min-height:1.2em;
+  }
+  .feedback.good{color:var(--good);}
+  .feedback.bad{color:var(--bad);}
+
+  .controls{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:22px;
+  }
+  .next-btn{
+    background:var(--gold);
+    color:var(--navy-deep);
+    border:none;
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:500;
+    font-size:0.82rem;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+    padding:10px 20px;
+    border-radius:4px;
+    cursor:pointer;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .2s;
+  }
+  .next-btn.show{opacity:1;pointer-events:auto;}
+  .next-btn:hover{background:var(--gold-soft);}
+
+  .score-line{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    color:var(--ink-dim);
+  }
+
+  .final{
+    text-align:center;
+    padding:40px 24px;
+  }
+  .final .ledger-stamp{
+    display:inline-block;
+    border:2px solid var(--gold);
+    border-radius:50%;
+    width:150px;
+    height:150px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    transform:rotate(-6deg);
+    margin-bottom:22px;
+  }
+  .final .ledger-stamp .num{
+    font-family:'Fraunces', serif;
+    font-size:2.4rem;
+    font-weight:700;
+    color:var(--gold);
+    line-height:1;
+  }
+  .final .ledger-stamp .of{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.72rem;
+    color:var(--ink-dim);
+    margin-top:4px;
+  }
+  .final h2{
+    font-family:'Fraunces', serif;
+    font-size:1.4rem;
+    margin:0 0 8px;
+  }
+  .final p{
+    color:var(--ink-dim);
+    font-size:0.9rem;
+    margin:0 0 24px;
+  }
+  .restart-btn{
+    background:transparent;
+    border:1px solid var(--gold);
+    color:var(--gold);
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.8rem;
+    padding:10px 22px;
+    border-radius:4px;
+    cursor:pointer;
+    letter-spacing:0.5px;
+    text-transform:uppercase;
+  }
+  .restart-btn:hover{background:var(--gold);color:var(--navy-deep);}
+
+  .review-list{
+    text-align:left;
+    margin-top:28px;
+    border-top:1px solid var(--ledger-line);
+    padding-top:20px;
+  }
+  .review-item{
+    font-family:'IBM Plex Mono', monospace;
+    font-size:0.75rem;
+    padding:8px 0;
+    border-bottom:1px dashed var(--ledger-line);
+    display:flex;
+    justify-content:space-between;
+    gap:10px;
+  }
+  .review-item .mark-good{color:var(--good);}
+  .review-item .mark-bad{color:var(--bad);}
+</style>
+</head>
+<body>
+<div class="sheet">
+  <div class="letterhead">
+    <h1>Banking &amp; Technology Ledger</h1>
+    <div class="stamp">UFCD 0555<br>Review Quiz</div>
+  </div>
+  <p class="subtitle">New technologies · Products &amp; services · Plastic money · Homebanking &amp; Telebanking — 30 entries</p>
+
+  <div class="balance-bar">
+    <span id="progress-label">Entry 1 / 30</span>
+    <div class="balance-track"><div class="balance-fill" id="balance-fill"></div></div>
+    <span class="score-line" id="score-label">Score: 0</span>
+  </div>
+
+  <div id="quiz-area"></div>
+</div>
+
+<script>
+const questions = [
+  {q:"What is the main advantage of ATMs (Automated Teller Machines) for banks?", opts:["They increase the need for extra branch counter staff","They reduce the need for staff at branch counters","They only work during office hours","They remove the need for customer identification"], correct:1},
+  {q:"Which term describes banking conducted mainly through electronic channels rather than physical branches?", opts:["Investment banking","Correspondent banking","E-banking","Retail banking"], correct:2},
+  {q:"Which of the following was one of the earliest technological innovations to change banking activity?", opts:["Cloud computing","The ATM","Blockchain","The smartphone app"], correct:1},
+  {q:"New technologies in banking primarily aim to:", opts:["Increase paperwork for customers","Limit customer access to accounts","Improve efficiency and customer convenience","Reduce the number of banking products"], correct:2},
+  {q:"Which of the following is an example of a self-service banking channel?", opts:["Loan officer meeting","ATM","Branch manager consultation","Bank teller counter"], correct:1},
+  {q:"What risk is commonly associated with the growth of electronic banking technologies?", opts:["Longer queues at branches","Increased paper consumption","Cybersecurity threats","Fewer banking products available"], correct:2},
+  {q:"Technology has allowed banks to offer services:", opts:["Only during traditional business hours","24 hours a day, 7 days a week","Only in physical branches","Only to corporate clients"], correct:1},
+  {q:"What term is commonly used for the digital transformation of financial services?", opts:["Proptech","Agritech","Fintech","Biotech"], correct:2},
+
+  {q:"Which of these is considered a modern banking service or product?", opts:["Mobile payment apps","Handwritten cheques only","Paper passbooks only","In-person transfers only"], correct:0},
+  {q:"A \"standing order\" is a service that allows:", opts:["One-time cash withdrawal","Automatic regular payments from an account","Manual signature verification each time","Printing of physical cheques"], correct:1},
+  {q:"Direct debit is a service where:", opts:["Payments are made only in cash","The customer must visit the branch monthly","The customer's account is automatically charged by an authorised company","The bank manually withdraws cash for the customer"], correct:2},
+  {q:"Which service allows customers to move money electronically between accounts?", opts:["Cheque book request","Wire / bank transfer","Passbook update","Safe deposit box"], correct:1},
+  {q:"What is a \"safe deposit box\" used for?", opts:["Making online payments","Storing valuables and important documents securely","Transferring funds abroad","Applying for a loan"], correct:1},
+  {q:"Which product allows customers to save money with flexible access and generally higher interest than a current account?", opts:["Overdraft facility","Cheque guarantee card","Savings account","Current account only"], correct:2},
+  {q:"Which service allows businesses to accept card payments in-store?", opts:["POS (Point of Sale) terminal","Passbook","Standing order","ATM only"], correct:0},
+  {q:"Which of these is an example of a value-added banking service?", opts:["Cash-only counters","Insurance products offered by banks","Manual bookkeeping","Paper statements only"], correct:1},
+
+  {q:"What is \"plastic money\" commonly referring to?", opts:["Paper banknotes","Coins","Debit and credit cards","Cheques"], correct:2},
+  {q:"What is the main difference between a debit card and a credit card?", opts:["A debit card uses the account holder's own funds, a credit card uses borrowed funds","A debit card can only be used online","A credit card cannot be used abroad","There is no difference between them"], correct:0},
+  {q:"What does \"electronic cash\" refer to?", opts:["Physical coins only","Digital representation of money used for electronic transactions","Only cheques","Only wire transfers between banks"], correct:1},
+  {q:"What security feature is commonly used to authorise card payments?", opts:["Verbal confirmation only","No verification is needed","PIN (Personal Identification Number)","Handwritten signature with no checks"], correct:2},
+  {q:"What is a credit limit?", opts:["The interest rate on a mortgage","The minimum balance required in a savings account","The maximum amount a cardholder can borrow on a credit card","The number of ATMs available to a bank"], correct:2},
+  {q:"Contactless payment technology allows customers to:", opts:["Only withdraw cash","Pay by tapping the card near a reader, without inserting or swiping","Only pay by cheque","Only pay in foreign currency"], correct:1},
+  {q:"What usually happens if a credit card balance is not paid in full by the due date?", opts:["The card is automatically cancelled","Nothing happens","The bank pays the balance for free","Interest is usually charged on the remaining balance"], correct:3},
+  {q:"What is one advantage of using plastic money instead of cash?", opts:["It cannot be lost or stolen","It requires no bank account at all","Greater convenience and security in transactions","It is accepted only in one country"], correct:2},
+
+  {q:"What does \"homebanking\" allow customers to do?", opts:["Only withdraw cash at ATMs","Access banking services from home via computer or the internet","Only visit the branch physically","Only receive paper statements"], correct:1},
+  {q:"\"Telebanking\" refers to banking services accessed through:", opts:["Only in-person visits","Only postal mail","The telephone","Only fax machines"], correct:2},
+  {q:"What is a major benefit of homebanking for customers?", opts:["Mandatory branch visits","Convenience of managing accounts without visiting a branch","Slower transaction processing","Limited access hours"], correct:1},
+  {q:"Which of the following is a common feature of internet banking platforms?", opts:["Only viewing advertisements","Printing physical cheques automatically","Checking account balances and making transfers online","Only applying for jobs"], correct:2},
+  {q:"What is essential for a customer to use homebanking securely?", opts:["A physical branch visit each time","No authentication required","A shared public password","A secure login with username, password and often two-factor authentication"], correct:3},
+  {q:"Telebanking and homebanking are examples of services designed for:", opts:["Reducing the number of available banking products","Remote and convenient access to banking, often via the internet or phone","Increasing the need for physical branch visits","Cash-only transactions"], correct:1}
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+const answersLog = [];
+
+const quizArea = document.getElementById('quiz-area');
+const balanceFill = document.getElementById('balance-fill');
+const progressLabel = document.getElementById('progress-label');
+const scoreLabel = document.getElementById('score-label');
+
+function letter(i){ return String.fromCharCode(65+i); }
+
+function renderQuestion(){
+  answered = false;
+  const item = questions[current];
+  progressLabel.textContent = `Entry ${current+1} / ${questions.length}`;
+  scoreLabel.textContent = `Score: ${score}`;
+  balanceFill.style.width = `${(current/questions.length)*100}%`;
+
+  quizArea.innerHTML = `
+    <div class="card">
+      <div class="entry-no">Entry No. ${String(current+1).padStart(2,'0')}</div>
+      <p class="question">${item.q}</p>
+      <div class="options" id="options"></div>
+      <div class="feedback" id="feedback"></div>
+      <div class="controls">
+        <span></span>
+        <button class="next-btn" id="next-btn">${current === questions.length-1 ? 'See results' : 'Next entry →'}</button>
+      </div>
+    </div>
+  `;
+
+  const optionsDiv = document.getElementById('options');
+  item.opts.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'opt';
+    btn.innerHTML = `<span class="tag">${letter(i)}</span><span>${opt}</span>`;
+    btn.addEventListener('click', () => selectOption(i));
+    optionsDiv.appendChild(btn);
+  });
+
+  document.getElementById('next-btn').addEventListener('click', nextQuestion);
+}
+
+function selectOption(i){
+  if(answered) return;
+  answered = true;
+  const item = questions[current];
+  const optBtns = document.querySelectorAll('.opt');
+  optBtns.forEach((btn, idx) => {
+    btn.disabled = true;
+    if(idx === item.correct) btn.classList.add('correct');
+    if(idx === i && i !== item.correct) btn.classList.add('wrong');
+  });
+
+  const feedback = document.getElementById('feedback');
+  const correct = i === item.correct;
+  if(correct){
+    score++;
+    feedback.textContent = '✓ Correct.';
+    feedback.className = 'feedback good';
+  } else {
+    feedback.textContent = `✗ Incorrect — correct answer: ${letter(item.correct)}.`;
+    feedback.className = 'feedback bad';
+  }
+  answersLog.push({q:item.q, correct, given:i, correctIdx:item.correct, opts:item.opts});
+  scoreLabel.textContent = `Score: ${score}`;
+  document.getElementById('next-btn').classList.add('show');
+}
+
+function nextQuestion(){
+  current++;
+  if(current >= questions.length){
+    renderFinal();
+  } else {
+    renderQuestion();
+  }
+}
+
+function renderFinal(){
+  balanceFill.style.width = '100%';
+  progressLabel.textContent = `Entry ${questions.length} / ${questions.length}`;
+  scoreLabel.textContent = `Score: ${score}`;
+
+  const pct = Math.round((score/questions.length)*100);
+  let remark;
+  if(pct >= 90) remark = "Excellent — this ledger balances perfectly.";
+  else if(pct >= 70) remark = "Solid grasp of the content, minor gaps to close.";
+  else if(pct >= 50) remark = "Fair result — worth another pass through the material.";
+  else remark = "Time to revisit the UFCD 0555 content before the next attempt.";
+
+  let reviewHTML = '';
+  answersLog.forEach((a, idx) => {
+    reviewHTML += `<div class="review-item">
+      <span>${idx+1}. ${a.q}</span>
+      <span class="${a.correct ? 'mark-good' : 'mark-bad'}">${a.correct ? 'CORRECT' : 'WRONG (' + letter(a.correctIdx) + ')'}</span>
+    </div>`;
+  });
+
+  quizArea.innerHTML = `
+    <div class="card final">
+      <div class="ledger-stamp">
+        <span class="num">${score}</span>
+        <span class="of">/ ${questions.length}</span>
+      </div>
+      <h2>Final balance: ${pct}%</h2>
+      <p>${remark}</p>
+      <button class="restart-btn" id="restart-btn">Reopen the ledger</button>
+      <div class="review-list">${reviewHTML}</div>
+    </div>
+  `;
+  document.getElementById('restart-btn').addEventListener('click', () => {
+    current = 0; score = 0; answersLog.length = 0;
+    renderQuestion();
+  });
+}
+
+renderQuestion();
+</script>
+</body>
+</html>
